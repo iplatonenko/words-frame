@@ -18,6 +18,8 @@
   var card = document.getElementById("card");
 
   var intervalSelect = document.getElementById("intervalSelect");
+  var knownSizeSelect = document.getElementById("knownSizeSelect");
+  var learningSizeSelect = document.getElementById("learningSizeSelect");
 
   // ---- Storage keys
   var K_WORDS = "wf_words_v1";
@@ -25,6 +27,8 @@
   var K_INTERVAL = "wf_interval_v1";
   var K_BOARD = "wf_board_v1";
   var K_SWAP = "wf_swap_v1";
+  var K_SIZE_KNOWN = "wf_size_known_v1";
+  var K_SIZE_LEARNING = "wf_size_learning_v1";
 
   // ---- State
   var words = []; // {el, ru}
@@ -37,6 +41,8 @@
   var isSwapped = false;
   var shuffledRecently = false;
   var shuffledTimer = null;
+  var knownSize = 56;
+  var learningSize = 24;
 
   var LONG_TAP_MS = 900;
   var DOUBLE_TAP_MS = 320;
@@ -65,6 +71,11 @@
 
     var swap = localStorage.getItem(K_SWAP);
     isSwapped = swap === "1";
+
+    knownSize = normalizeSize(localStorage.getItem(K_SIZE_KNOWN) || "56", 56);
+    learningSize = normalizeSize(localStorage.getItem(K_SIZE_LEARNING) || "24", 24);
+    knownSizeSelect.value = String(knownSize);
+    learningSizeSelect.value = String(learningSize);
   }
 
   function setMeta() {
@@ -93,6 +104,12 @@
         updateUiState();
       }, 1200);
     }
+  }
+
+  function normalizeSize(value, fallback) {
+    var n = parseInt(value, 10);
+    if (!isFinite(n) || n < 8) return fallback;
+    return n;
   }
 
   function updateUiState() {
@@ -126,7 +143,20 @@
     elStatus.textContent = statusParts.join(" | ");
   }
 
+  function applyTextSizes() {
+    var isBoard = document.body.classList.contains("board-mode");
+    var knownPx = knownSize + (isBoard ? 16 : 0);
+    var learningPx = learningSize + (isBoard ? 4 : 0);
+    var topPx = isSwapped ? learningPx : knownPx;
+    var bottomPx = isSwapped ? knownPx : learningPx;
+
+    elWord.style.fontSize = topPx + "px";
+    elTranslation.style.fontSize = bottomPx + "px";
+  }
+
   function render() {
+    applyTextSizes();
+
     if (!words.length) {
       elWord.textContent = "Upload CSV";
       elTranslation.textContent = "Known + Learning";
@@ -169,6 +199,7 @@
       lastTapAt = 0;
       longTapTriggered = false;
     }
+    applyTextSizes();
     updateUiState();
   }
 
@@ -344,6 +375,20 @@
   intervalSelect.addEventListener("change", function () {
     localStorage.setItem(K_INTERVAL, intervalSelect.value);
     if (isRunning) start(); // restart timer
+  });
+
+  knownSizeSelect.addEventListener("input", function () {
+    knownSize = normalizeSize(knownSizeSelect.value || "56", 56);
+    knownSizeSelect.value = String(knownSize);
+    localStorage.setItem(K_SIZE_KNOWN, String(knownSize));
+    render();
+  });
+
+  learningSizeSelect.addEventListener("input", function () {
+    learningSize = normalizeSize(learningSizeSelect.value || "24", 24);
+    learningSizeSelect.value = String(learningSize);
+    localStorage.setItem(K_SIZE_LEARNING, String(learningSize));
+    render();
   });
 
   btnBoard.addEventListener("click", function () {
