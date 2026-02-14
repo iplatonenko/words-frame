@@ -3,6 +3,7 @@
   var elWord = document.getElementById("word");
   var elTranslation = document.getElementById("translation");
   var elMeta = document.getElementById("meta");
+  var elStatus = document.getElementById("status");
 
   var fileInput = document.getElementById("fileInput");
 
@@ -31,6 +32,8 @@
   var longTapTimer = null;
   var longTapTriggered = false;
   var lastTapAt = 0;
+  var shuffledRecently = false;
+  var shuffledTimer = null;
 
   var LONG_TAP_MS = 900;
   var DOUBLE_TAP_MS = 320;
@@ -66,11 +69,60 @@
     elMeta.textContent = index + 1 + " / " + words.length;
   }
 
+  function setButtonActive(btn, on) {
+    if (!btn) return;
+    if (on) btn.classList.add("is-active");
+    else btn.classList.remove("is-active");
+  }
+
+  function setShuffledRecently(on) {
+    shuffledRecently = on;
+    if (shuffledTimer) {
+      clearTimeout(shuffledTimer);
+      shuffledTimer = null;
+    }
+    if (on) {
+      shuffledTimer = setTimeout(function () {
+        shuffledRecently = false;
+        updateUiState();
+      }, 1200);
+    }
+  }
+
+  function updateUiState() {
+    var hasWords = words.length > 0;
+    var isBoard = document.body.classList.contains("board-mode");
+    var statusParts = [];
+
+    btnStart.disabled = !hasWords || isRunning;
+    btnPause.disabled = !hasWords || !isRunning;
+    btnPrev.disabled = !hasWords;
+    btnNext.disabled = !hasWords;
+    btnShuffle.disabled = !hasWords;
+    btnReset.disabled = !hasWords;
+
+    setButtonActive(btnStart, hasWords && isRunning);
+    setButtonActive(btnPause, hasWords && !isRunning);
+    setButtonActive(btnBoard, isBoard);
+    setButtonActive(btnShuffle, shuffledRecently);
+
+    if (!hasWords) {
+      elStatus.textContent = "No data loaded";
+      return;
+    }
+
+    statusParts.push(isRunning ? "Running" : "Paused");
+    if (isBoard) statusParts.push("Board mode");
+    if (shuffledRecently) statusParts.push("Shuffled");
+    elStatus.textContent = statusParts.join(" | ");
+  }
+
   function render() {
     if (!words.length) {
       elWord.textContent = "Upload CSV";
       elTranslation.textContent = "EL,EN (or 1 column)";
       setMeta();
+      updateUiState();
       return;
     }
 
@@ -91,6 +143,7 @@
     elTranslation.textContent = bottom ? bottom : " ";
     setMeta();
     save();
+    updateUiState();
   }
 
   function setBoardMode(on) {
@@ -101,6 +154,7 @@
       lastTapAt = 0;
       longTapTriggered = false;
     }
+    updateUiState();
   }
 
   function startLongTapTimer() {
@@ -123,6 +177,7 @@
     isRunning = false;
     if (timerId) clearInterval(timerId);
     timerId = null;
+    updateUiState();
   }
 
   function start() {
@@ -135,6 +190,7 @@
       index += 1;
       render();
     }, seconds * 1000);
+    updateUiState();
   }
 
   function shuffleArray(arr) {
@@ -228,6 +284,7 @@
       var text = String(reader.result || "");
       words = parseCsv(text);
       index = 0;
+      setShuffledRecently(false);
       save();
       render();
       // Auto-start after loading
@@ -258,6 +315,7 @@
     stop();
     shuffleArray(words);
     index = 0;
+    setShuffledRecently(true);
     save();
     render();
   });
@@ -266,6 +324,7 @@
     stop();
     words = [];
     index = 0;
+    setShuffledRecently(false);
     localStorage.removeItem(K_WORDS);
     localStorage.removeItem(K_INDEX);
     render();
