@@ -12,6 +12,7 @@
   var btnPrev = document.getElementById("btnPrev");
   var btnNext = document.getElementById("btnNext");
   var btnShuffle = document.getElementById("btnShuffle");
+  var btnSwap = document.getElementById("btnSwap");
   var btnReset = document.getElementById("btnReset");
   var btnBoard = document.getElementById("btnBoard");
   var card = document.getElementById("card");
@@ -23,15 +24,17 @@
   var K_INDEX = "wf_index_v1";
   var K_INTERVAL = "wf_interval_v1";
   var K_BOARD = "wf_board_v1";
+  var K_SWAP = "wf_swap_v1";
 
   // ---- State
-  var words = []; // {a?, el?, ru?, raw?}
+  var words = []; // {el, ru}
   var index = 0;
   var timerId = null;
   var isRunning = false;
   var longTapTimer = null;
   var longTapTriggered = false;
   var lastTapAt = 0;
+  var isSwapped = false;
   var shuffledRecently = false;
   var shuffledTimer = null;
 
@@ -59,6 +62,9 @@
 
     var board = localStorage.getItem(K_BOARD);
     if (board === "1") document.body.classList.add("board-mode");
+
+    var swap = localStorage.getItem(K_SWAP);
+    isSwapped = swap === "1";
   }
 
   function setMeta() {
@@ -99,12 +105,14 @@
     btnPrev.disabled = !hasWords;
     btnNext.disabled = !hasWords;
     btnShuffle.disabled = !hasWords;
+    btnSwap.disabled = !hasWords;
     btnReset.disabled = !hasWords;
 
     setButtonActive(btnStart, hasWords && isRunning);
     setButtonActive(btnPause, hasWords && !isRunning);
     setButtonActive(btnBoard, isBoard);
     setButtonActive(btnShuffle, shuffledRecently);
+    setButtonActive(btnSwap, hasWords && isSwapped);
 
     if (!hasWords) {
       elStatus.textContent = "No data loaded";
@@ -113,6 +121,7 @@
 
     statusParts.push(isRunning ? "Running" : "Paused");
     if (isBoard) statusParts.push("Board mode");
+    if (isSwapped) statusParts.push("Swapped");
     if (shuffledRecently) statusParts.push("Shuffled");
     elStatus.textContent = statusParts.join(" | ");
   }
@@ -120,7 +129,7 @@
   function render() {
     if (!words.length) {
       elWord.textContent = "Upload CSV";
-      elTranslation.textContent = "EL,EN (or 1 column)";
+      elTranslation.textContent = "Known + Learning";
       setMeta();
       updateUiState();
       return;
@@ -131,13 +140,19 @@
 
     var item = words[index];
 
-    // Minimal mode: show source word on top and translation below.
-    // If CSV has 1 column, all content goes to the top line.
-    var top = item.el || item.raw || "";
-    var bottom = item.ru || "";
+    // Show known language on top and learning language below.
+    var source = item.el || "";
+    var target = item.ru || "";
+    var top = source;
+    var bottom = target;
 
-    // If article exists, prepend it
-    if (item.article && top) top = item.article + " " + top;
+    if (isSwapped) {
+      top = target;
+      bottom = source;
+    } else {
+      top = source;
+      bottom = target;
+    }
 
     elWord.textContent = top || "—";
     elTranslation.textContent = bottom ? bottom : " ";
@@ -204,9 +219,7 @@
 
   // ---- CSV parsing (simple and reliable)
   // Supports:
-  //  - 1 column: EL
-  //  - 2 columns: EL,EN
-  //  - 3 columns: ARTICLE,EL,EN
+  //  - 2 columns: KNOWN,LEARNING
   // Delimiter auto-detect: ; or ,
   function detectDelimiter(text) {
     var firstLine = text.split(/\r?\n/)[0] || "";
@@ -255,20 +268,10 @@
       var line = lines[i].trim();
       if (!line) continue;
 
-      // Skip potential header
-      if (i === 0 && /^(el|greek|word|ru|translation|article)\b/i.test(line)) {
-        continue;
-      }
-
       var cols = splitCsvLine(line, delim);
 
-      if (cols.length === 1) {
-        list.push({ raw: cols[0] });
-      } else if (cols.length === 2) {
+      if (cols.length === 2) {
         list.push({ el: cols[0], ru: cols[1] });
-      } else {
-        // 3+ columns: use first 3 as article, el, ru
-        list.push({ article: cols[0], el: cols[1], ru: cols[2] });
       }
     }
     return list;
@@ -317,6 +320,14 @@
     index = 0;
     setShuffledRecently(true);
     save();
+    render();
+  });
+
+  btnSwap.addEventListener("click", function () {
+    if (!words.length) return;
+    stop();
+    isSwapped = !isSwapped;
+    localStorage.setItem(K_SWAP, isSwapped ? "1" : "0");
     render();
   });
 
