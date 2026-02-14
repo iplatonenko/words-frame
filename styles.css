@@ -1,0 +1,124 @@
+:root {
+  --bg: #0f1115;
+  --fg: #ffffff;
+  --muted: rgba(255, 255, 255, 0.65);
+  --muted2: rgba(255, 255, 255, 0.35);
+  --panel: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.12);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.screen {
+  height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.word {
+  font-size: 56px;
+  line-height: 1.1;
+  letter-spacing: 0.2px;
+  margin-bottom: 12px;
+}
+
+.translation {
+  font-size: 24px;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+.meta {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted2);
+}
+
+.controls {
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--fg);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.file-btn input {
+  display: none;
+}
+
+.select {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+select {
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+/* Board mode: hide controls panel */
+.board-mode .controls {
+  display: none;
+}
+
+/* Slightly larger text in board mode */
+.board-mode .word {
+  font-size: 72px;
+}
+.board-mode .translation {
+  font-size: 28px;
+}
