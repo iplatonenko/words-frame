@@ -46,6 +46,7 @@ body {
   line-height: 1.1;
   letter-spacing: 0.2px;
   margin-bottom: 12px;
+  font-weight: 300;
 }
 
 .translation {
@@ -55,16 +56,20 @@ body {
 }
 
 .meta {
-  margin-top: 18px;
+  margin-top: 0;
   font-size: 14px;
   color: var(--muted2);
 }
 
 .status {
-  margin-top: 8px;
-  min-height: 16px;
+  margin-top: 0;
+  min-height: 0;
   font-size: 12px;
   color: var(--muted2);
+}
+
+.info-row {
+  gap: 14px;
 }
 
 .controls {
