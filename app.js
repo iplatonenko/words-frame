@@ -112,6 +112,20 @@
     return n;
   }
 
+  function applyKnownSizeInput() {
+    knownSize = normalizeSize(knownSizeSelect.value || String(knownSize), 56);
+    knownSizeSelect.value = String(knownSize);
+    localStorage.setItem(K_SIZE_KNOWN, String(knownSize));
+    render();
+  }
+
+  function applyLearningSizeInput() {
+    learningSize = normalizeSize(learningSizeSelect.value || String(learningSize), 24);
+    learningSizeSelect.value = String(learningSize);
+    localStorage.setItem(K_SIZE_LEARNING, String(learningSize));
+    render();
+  }
+
   function updateUiState() {
     var hasWords = words.length > 0;
     var isBoard = document.body.classList.contains("board-mode");
@@ -369,6 +383,7 @@
     setShuffledRecently(false);
     localStorage.removeItem(K_WORDS);
     localStorage.removeItem(K_INDEX);
+    fileInput.value = "";
     render();
   });
 
@@ -377,19 +392,11 @@
     if (isRunning) start(); // restart timer
   });
 
-  knownSizeSelect.addEventListener("input", function () {
-    knownSize = normalizeSize(knownSizeSelect.value || "56", 56);
-    knownSizeSelect.value = String(knownSize);
-    localStorage.setItem(K_SIZE_KNOWN, String(knownSize));
-    render();
-  });
+  knownSizeSelect.addEventListener("change", applyKnownSizeInput);
+  knownSizeSelect.addEventListener("blur", applyKnownSizeInput);
 
-  learningSizeSelect.addEventListener("input", function () {
-    learningSize = normalizeSize(learningSizeSelect.value || "24", 24);
-    learningSizeSelect.value = String(learningSize);
-    localStorage.setItem(K_SIZE_LEARNING, String(learningSize));
-    render();
-  });
+  learningSizeSelect.addEventListener("change", applyLearningSizeInput);
+  learningSizeSelect.addEventListener("blur", applyLearningSizeInput);
 
   btnBoard.addEventListener("click", function () {
     var on = !document.body.classList.contains("board-mode");
