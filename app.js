@@ -73,7 +73,10 @@
     isSwapped = swap === "1";
 
     knownSize = normalizeSize(localStorage.getItem(K_SIZE_KNOWN) || "56", 56);
-    learningSize = normalizeSize(localStorage.getItem(K_SIZE_LEARNING) || "24", 24);
+    learningSize = normalizeSize(
+      localStorage.getItem(K_SIZE_LEARNING) || "24",
+      24,
+    );
     knownSizeSelect.value = String(knownSize);
     learningSizeSelect.value = String(learningSize);
   }
@@ -120,7 +123,10 @@
   }
 
   function applyLearningSizeInput() {
-    learningSize = normalizeSize(learningSizeSelect.value || String(learningSize), 24);
+    learningSize = normalizeSize(
+      learningSizeSelect.value || String(learningSize),
+      24,
+    );
     learningSizeSelect.value = String(learningSize);
     localStorage.setItem(K_SIZE_LEARNING, String(learningSize));
     render();
@@ -161,11 +167,9 @@
     var isBoard = document.body.classList.contains("board-mode");
     var knownPx = knownSize + (isBoard ? 16 : 0);
     var learningPx = learningSize + (isBoard ? 4 : 0);
-    var topPx = isSwapped ? learningPx : knownPx;
-    var bottomPx = isSwapped ? knownPx : learningPx;
 
-    elWord.style.fontSize = topPx + "px";
-    elTranslation.style.fontSize = bottomPx + "px";
+    elWord.style.fontSize = knownPx + "px";
+    elTranslation.style.fontSize = learningPx + "px";
   }
 
   function render() {
