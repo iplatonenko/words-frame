@@ -95,6 +95,7 @@ Service Worker должен кэшировать ассеты приложени
 Важно для обновлений:
 
 - при изменениях ассетов **бампать версию CACHE** (например `words-frame-v1` → `words-frame-v2`).
+- при деплое через GitHub Actions версия CACHE может бампаться автоматически в workflow.
 
 ## PWA / iOS Add to Home Screen
 

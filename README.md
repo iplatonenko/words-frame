@@ -2,6 +2,8 @@
 
 Minimalist offline-first PWA for cycling word pairs on screen (like a digital frame).
 
+Live app: https://iplatonenko.github.io/words-frame/
+
 ## Features
 
 - Upload CSV with word pairs
@@ -59,13 +61,8 @@ Details:
 
 Cached assets are defined in `sw.js` (`ASSETS`) and served with cache-first strategy.
 
-When updating app assets:
-
-1. Update files
-2. Bump cache version in `sw.js` (`CACHE`)
-3. Commit and deploy
-
-Current cache version: `words-frame-v3`.
+When deployed via GitHub Actions, cache version is bumped automatically per run
+(`words-frame-v<run_number>`), so manual cache version edits are not required.
 
 ## Run Locally
 
@@ -81,11 +78,9 @@ Then open `http://localhost:8080`.
 
 1. Push project to GitHub repository (`main` branch).
 2. Open `Settings -> Pages`.
-3. Set:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/ (root)`
-4. Save and wait for publish.
+3. Set `Source` to `GitHub Actions`.
+4. Commit includes workflow: `.github/workflows/deploy-pages.yml`.
+5. Push to `main` (or run workflow manually) and wait for publish.
 
 Site URL will be:
 
