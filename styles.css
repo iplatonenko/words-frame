@@ -8,6 +8,15 @@
   --radius: 18px;
 }
 
+body.light-theme {
+  --bg: #ebe8e0;
+  --fg: #1d2126;
+  --muted: rgba(29, 33, 38, 0.7);
+  --muted2: rgba(29, 33, 38, 0.5);
+  --panel: rgba(29, 33, 38, 0.09);
+  --border: rgba(29, 33, 38, 0.22);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -75,7 +84,7 @@ body {
 
 .controls {
   border-top: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--panel);
   padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
 }
 

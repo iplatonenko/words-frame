@@ -11,7 +11,8 @@ Live app: https://iplatonenko.github.io/words-frame/
 - Start / Pause / Prev / Next
 - Shuffle list
 - Swap Sides (swap shown words between top/bottom lines)
-- Board Mode (hide controls, tap to next, long tap or double tap to exit)
+- Theme toggle (Dark / Light)
+- Board Mode (hide controls, left tap = prev, right tap = next, long tap or double tap to exit)
 - Manual font size controls for top and bottom lines
 - Local persistence via `localStorage`
 - Works offline after first load (Service Worker)
@@ -43,6 +44,7 @@ Details:
 - `◀` / `▶`
 - `Shuffle`
 - `Swap Sides`
+- `Theme` (Dark / Light)
 - `Interval`
 - `Known size` / `Learning size`
 - `Board Mode`
@@ -54,6 +56,7 @@ Details:
 - `wf_interval_v1` - selected interval
 - `wf_board_v1` - board mode flag
 - `wf_swap_v1` - swap sides flag
+- `wf_theme_v1` - theme flag (`dark`/`light`)
 - `wf_size_known_v1` - top line size setting
 - `wf_size_learning_v1` - bottom line size setting
 

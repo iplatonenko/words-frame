@@ -50,11 +50,13 @@
 - Назад / Вперёд
 - Shuffle
 - Swap Sides (поменять местами Known/Learning на экране)
+- Theme (переключение Dark/Light)
 - Интервал
 - Known size / Learning size (ручная настройка размера)
 - Режим табло:
   - скрывает панель
-  - тап по экрану = следующий
+  - тап по левой части экрана = предыдущий
+  - тап по правой части экрана = следующий
   - выход из табло: **долгий тап (~900мс)** и/или **двойной тап** (резерв)
 
 ## Данные и хранение
@@ -65,6 +67,7 @@
   - интервал: `localStorage["wf_interval_v1"]`
   - флаг табло: `localStorage["wf_board_v1"]`
   - флаг перестановки сторон: `localStorage["wf_swap_v1"]`
+  - тема: `localStorage["wf_theme_v1"]`
   - размер Known: `localStorage["wf_size_known_v1"]`
   - размер Learning: `localStorage["wf_size_learning_v1"]`
 - При старте:
@@ -130,7 +133,7 @@ Service Worker должен кэшировать ассеты приложени
 - Если подключён `./sw.js`, убедиться, что файл реально существует и корректно регистрируется.
 - Если заявлен PWA-режим, проверить наличие `manifest.webmanifest` и иконок `icons/icon-192.png`, `icons/icon-512.png`.
 - Проверить, что в JS нет синтаксиса, несовместимого с iOS 12.5 (`?.`, `??`, `import`, `class fields`).
-- Проверить, что после изменений не сломаны `localStorage` ключи: `wf_words_v1`, `wf_index_v1`, `wf_interval_v1`, `wf_board_v1`, `wf_swap_v1`, `wf_size_known_v1`, `wf_size_learning_v1`.
+- Проверить, что после изменений не сломаны `localStorage` ключи: `wf_words_v1`, `wf_index_v1`, `wf_interval_v1`, `wf_board_v1`, `wf_swap_v1`, `wf_theme_v1`, `wf_size_known_v1`, `wf_size_learning_v1`.
 
 ## Известные пробелы (технический долг)
 

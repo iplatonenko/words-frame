@@ -13,6 +13,7 @@
   var btnNext = document.getElementById("btnNext");
   var btnShuffle = document.getElementById("btnShuffle");
   var btnSwap = document.getElementById("btnSwap");
+  var btnTheme = document.getElementById("btnTheme");
   var btnReset = document.getElementById("btnReset");
   var btnBoard = document.getElementById("btnBoard");
   var card = document.getElementById("card");
@@ -27,6 +28,7 @@
   var K_INTERVAL = "wf_interval_v1";
   var K_BOARD = "wf_board_v1";
   var K_SWAP = "wf_swap_v1";
+  var K_THEME = "wf_theme_v1";
   var K_SIZE_KNOWN = "wf_size_known_v1";
   var K_SIZE_LEARNING = "wf_size_learning_v1";
 
@@ -43,6 +45,7 @@
   var shuffledTimer = null;
   var knownSize = 56;
   var learningSize = 24;
+  var theme = "dark";
 
   var LONG_TAP_MS = 900;
   var DOUBLE_TAP_MS = 320;
@@ -72,6 +75,10 @@
     var swap = localStorage.getItem(K_SWAP);
     isSwapped = swap === "1";
 
+    var storedTheme = localStorage.getItem(K_THEME);
+    if (storedTheme === "light" || storedTheme === "dark") theme = storedTheme;
+    applyTheme(theme);
+
     knownSize = normalizeSize(localStorage.getItem(K_SIZE_KNOWN) || "56", 56);
     learningSize = normalizeSize(
       localStorage.getItem(K_SIZE_LEARNING) || "24",
@@ -93,6 +100,13 @@
     if (!btn) return;
     if (on) btn.classList.add("is-active");
     else btn.classList.remove("is-active");
+  }
+
+  function applyTheme(nextTheme) {
+    theme = nextTheme === "light" ? "light" : "dark";
+    if (theme === "light") document.body.classList.add("light-theme");
+    else document.body.classList.remove("light-theme");
+    btnTheme.textContent = theme === "light" ? "Theme: Light" : "Theme: Dark";
   }
 
   function setShuffledRecently(on) {
@@ -150,6 +164,7 @@
     setButtonActive(btnBoard, isBoard);
     setButtonActive(btnShuffle, shuffledRecently);
     setButtonActive(btnSwap, hasWords && isSwapped);
+    setButtonActive(btnTheme, theme === "light");
 
     if (!hasWords) {
       elStatus.textContent = "No data loaded";
@@ -378,6 +393,12 @@
     isSwapped = !isSwapped;
     localStorage.setItem(K_SWAP, isSwapped ? "1" : "0");
     render();
+  });
+
+  btnTheme.addEventListener("click", function () {
+    applyTheme(theme === "light" ? "dark" : "light");
+    localStorage.setItem(K_THEME, theme);
+    updateUiState();
   });
 
   btnReset.addEventListener("click", function () {
