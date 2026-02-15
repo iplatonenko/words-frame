@@ -42,8 +42,8 @@
   var isSwapped = false;
   var shuffledRecently = false;
   var shuffledTimer = null;
-  var knownSize = 56;
-  var learningSize = 24;
+  var knownSize = 98;
+  var learningSize = 48;
   var theme = "dark";
 
   var LONG_TAP_MS = 1000;
@@ -77,10 +77,10 @@
     if (storedTheme === "light" || storedTheme === "dark") theme = storedTheme;
     applyTheme(theme);
 
-    knownSize = normalizeSize(localStorage.getItem(K_SIZE_KNOWN) || "56", 56);
+    knownSize = normalizeSize(localStorage.getItem(K_SIZE_KNOWN) || "98", 98);
     learningSize = normalizeSize(
-      localStorage.getItem(K_SIZE_LEARNING) || "24",
-      24,
+      localStorage.getItem(K_SIZE_LEARNING) || "48",
+      48,
     );
     knownSizeSelect.value = String(knownSize);
     learningSizeSelect.value = String(learningSize);
@@ -128,7 +128,7 @@
   }
 
   function applyKnownSizeInput() {
-    knownSize = normalizeSize(knownSizeSelect.value || String(knownSize), 56);
+    knownSize = normalizeSize(knownSizeSelect.value || String(knownSize), 98);
     knownSizeSelect.value = String(knownSize);
     localStorage.setItem(K_SIZE_KNOWN, String(knownSize));
     render();
@@ -137,7 +137,7 @@
   function applyLearningSizeInput() {
     learningSize = normalizeSize(
       learningSizeSelect.value || String(learningSize),
-      24,
+      48,
     );
     learningSizeSelect.value = String(learningSize);
     localStorage.setItem(K_SIZE_LEARNING, String(learningSize));
