@@ -281,6 +281,14 @@
     }
   }
 
+  function stepBy(delta) {
+    var wasRunning = isRunning;
+    if (wasRunning) stop();
+    index += delta;
+    render();
+    if (wasRunning) start();
+  }
+
   // ---- CSV parsing (simple and reliable)
   // Supports:
   //  - 2 columns: KNOWN,LEARNING
@@ -367,14 +375,10 @@
     stop();
   });
   btnPrev.addEventListener("click", function () {
-    stop();
-    index -= 1;
-    render();
+    stepBy(-1);
   });
   btnNext.addEventListener("click", function () {
-    stop();
-    index += 1;
-    render();
+    stepBy(1);
   });
 
   btnShuffle.addEventListener("click", function () {
@@ -444,12 +448,9 @@
     }
     lastTapAt = now;
 
-    stop();
     var rect = card.getBoundingClientRect();
     var isLeft = e.clientX < rect.left + rect.width / 2;
-    if (isLeft) index -= 1;
-    else index += 1;
-    render();
+    stepBy(isLeft ? -1 : 1);
   });
 
   card.addEventListener("touchstart", function () {
