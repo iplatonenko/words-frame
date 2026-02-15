@@ -12,7 +12,7 @@ Live app: https://iplatonenko.github.io/words-frame/
 - Shuffle list
 - Swap Sides (swap shown words between top/bottom lines)
 - Theme toggle (Dark / Light)
-- Board Mode (hide controls, left tap = prev, right tap = next, long tap or double tap to exit)
+- Board Mode (hide controls, left tap = prev, right tap = next, long tap to exit)
 - Manual font size controls for top and bottom lines
 - Local persistence via `localStorage`
 - Works offline after first load (Service Worker)

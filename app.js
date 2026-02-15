@@ -39,7 +39,6 @@
   var isRunning = false;
   var longTapTimer = null;
   var longTapTriggered = false;
-  var lastTapAt = 0;
   var isSwapped = false;
   var shuffledRecently = false;
   var shuffledTimer = null;
@@ -47,8 +46,7 @@
   var learningSize = 24;
   var theme = "dark";
 
-  var LONG_TAP_MS = 900;
-  var DOUBLE_TAP_MS = 320;
+  var LONG_TAP_MS = 1000;
 
   // ---- Helpers
   function save() {
@@ -229,7 +227,6 @@
     else document.body.classList.remove("board-mode");
     localStorage.setItem(K_BOARD, on ? "1" : "0");
     if (!on) {
-      lastTapAt = 0;
       longTapTriggered = false;
     }
     applyTextSizes();
@@ -440,13 +437,6 @@
       longTapTriggered = false;
       return;
     }
-
-    var now = Date.now();
-    if (now - lastTapAt <= DOUBLE_TAP_MS) {
-      setBoardMode(false);
-      return;
-    }
-    lastTapAt = now;
 
     var rect = card.getBoundingClientRect();
     var isLeft = e.clientX < rect.left + rect.width / 2;
