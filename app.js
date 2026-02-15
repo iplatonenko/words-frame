@@ -407,8 +407,9 @@
     setBoardMode(on);
   });
 
-  // Tap in board mode = next card
-  card.addEventListener("click", function () {
+  // Tap in board mode:
+  // left half = previous card, right half = next card
+  card.addEventListener("click", function (e) {
     if (!document.body.classList.contains("board-mode")) return;
     if (longTapTriggered) {
       longTapTriggered = false;
@@ -423,7 +424,10 @@
     lastTapAt = now;
 
     stop();
-    index += 1;
+    var rect = card.getBoundingClientRect();
+    var isLeft = e.clientX < rect.left + rect.width / 2;
+    if (isLeft) index -= 1;
+    else index += 1;
     render();
   });
 
