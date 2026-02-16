@@ -51,7 +51,7 @@ body {
 }
 
 .word {
-  font-size: 98px;
+  font-size: 120px;
   line-height: 1.1;
   letter-spacing: 0.2px;
   margin-bottom: 12px;
@@ -59,7 +59,7 @@ body {
 }
 
 .translation {
-  font-size: 48px;
+  font-size: 24px;
   color: var(--muted);
   line-height: 1.25;
   font-weight: 300;

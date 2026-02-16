@@ -33,6 +33,8 @@
   var K_SIZE_KNOWN = "wf_size_known_v1";
   var K_SIZE_LEARNING = "wf_size_learning_v1";
   var K_CSV_NAME = "wf_csv_name_v1";
+  var DEFAULT_KNOWN_SIZE = 120;
+  var DEFAULT_LEARNING_SIZE = 24;
 
   // ---- State
   var words = []; // {el, ru}
@@ -44,8 +46,8 @@
   var isSwapped = false;
   var shuffledRecently = false;
   var shuffledTimer = null;
-  var knownSize = 98;
-  var learningSize = 48;
+  var knownSize = DEFAULT_KNOWN_SIZE;
+  var learningSize = DEFAULT_LEARNING_SIZE;
   var theme = "dark";
   var csvName = "";
 
@@ -81,10 +83,13 @@
     if (storedTheme === "light" || storedTheme === "dark") theme = storedTheme;
     applyTheme(theme);
 
-    knownSize = normalizeSize(localStorage.getItem(K_SIZE_KNOWN) || "98", 98);
+    knownSize = normalizeSize(
+      localStorage.getItem(K_SIZE_KNOWN) || String(DEFAULT_KNOWN_SIZE),
+      DEFAULT_KNOWN_SIZE,
+    );
     learningSize = normalizeSize(
-      localStorage.getItem(K_SIZE_LEARNING) || "48",
-      48,
+      localStorage.getItem(K_SIZE_LEARNING) || String(DEFAULT_LEARNING_SIZE),
+      DEFAULT_LEARNING_SIZE,
     );
     knownSizeSelect.value = String(knownSize);
     learningSizeSelect.value = String(learningSize);
@@ -147,7 +152,10 @@
   }
 
   function applyKnownSizeInput() {
-    knownSize = normalizeSize(knownSizeSelect.value || String(knownSize), 98);
+    knownSize = normalizeSize(
+      knownSizeSelect.value || String(knownSize),
+      DEFAULT_KNOWN_SIZE,
+    );
     knownSizeSelect.value = String(knownSize);
     localStorage.setItem(K_SIZE_KNOWN, String(knownSize));
     render();
@@ -156,7 +164,7 @@
   function applyLearningSizeInput() {
     learningSize = normalizeSize(
       learningSizeSelect.value || String(learningSize),
-      48,
+      DEFAULT_LEARNING_SIZE,
     );
     learningSizeSelect.value = String(learningSize);
     localStorage.setItem(K_SIZE_LEARNING, String(learningSize));
