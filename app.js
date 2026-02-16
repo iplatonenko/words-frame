@@ -2,6 +2,7 @@
   // ---- DOM
   var elWord = document.getElementById("word");
   var elTranslation = document.getElementById("translation");
+  var elCsvName = document.getElementById("csvName");
   var elMeta = document.getElementById("meta");
   var elStatus = document.getElementById("status");
 
@@ -31,6 +32,7 @@
   var K_THEME = "wf_theme_v1";
   var K_SIZE_KNOWN = "wf_size_known_v1";
   var K_SIZE_LEARNING = "wf_size_learning_v1";
+  var K_CSV_NAME = "wf_csv_name_v1";
 
   // ---- State
   var words = []; // {el, ru}
@@ -45,6 +47,7 @@
   var knownSize = 98;
   var learningSize = 48;
   var theme = "dark";
+  var csvName = "";
 
   var LONG_TAP_MS = 1000;
 
@@ -52,6 +55,7 @@
   function save() {
     localStorage.setItem(K_WORDS, JSON.stringify(words));
     localStorage.setItem(K_INDEX, String(index));
+    localStorage.setItem(K_CSV_NAME, csvName || "");
   }
 
   function load() {
@@ -84,6 +88,21 @@
     );
     knownSizeSelect.value = String(knownSize);
     learningSizeSelect.value = String(learningSize);
+
+    csvName = localStorage.getItem(K_CSV_NAME) || "";
+  }
+
+  function setCsvName() {
+    if (!elCsvName) return;
+    if (csvName) {
+      elCsvName.textContent = "CSV: " + csvName;
+      return;
+    }
+    if (words.length) {
+      elCsvName.textContent = "CSV: Saved words";
+      return;
+    }
+    elCsvName.textContent = "CSV:";
   }
 
   function setMeta() {
@@ -191,6 +210,7 @@
     if (!words.length) {
       elWord.textContent = "Upload CSV";
       elTranslation.textContent = "Known + Learning";
+      setCsvName();
       setMeta();
       updateUiState();
       return;
@@ -217,6 +237,7 @@
 
     elWord.textContent = top || "—";
     elTranslation.textContent = bottom ? bottom : " ";
+    setCsvName();
     setMeta();
     save();
     updateUiState();
@@ -355,6 +376,7 @@
     reader.onload = function () {
       var text = String(reader.result || "");
       words = parseCsv(text);
+      csvName = file.name || "Imported CSV";
       index = 0;
       setShuffledRecently(false);
       save();
@@ -405,10 +427,12 @@
   btnReset.addEventListener("click", function () {
     stop();
     words = [];
+    csvName = "";
     index = 0;
     setShuffledRecently(false);
     localStorage.removeItem(K_WORDS);
     localStorage.removeItem(K_INDEX);
+    localStorage.removeItem(K_CSV_NAME);
     fileInput.value = "";
     render();
   });

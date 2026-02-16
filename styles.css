@@ -71,6 +71,12 @@ body {
   color: var(--muted2);
 }
 
+.csv-name {
+  margin-top: 0;
+  font-size: 14px;
+  color: var(--muted2);
+}
+
 .status {
   margin-top: 0;
   min-height: 0;
