@@ -13,11 +13,15 @@
   var btnPrev = document.getElementById("btnPrev");
   var btnNext = document.getElementById("btnNext");
   var btnShuffle = document.getElementById("btnShuffle");
+  var btnList = document.getElementById("btnList");
   var btnSwap = document.getElementById("btnSwap");
   var btnTheme = document.getElementById("btnTheme");
   var btnReset = document.getElementById("btnReset");
   var btnBoard = document.getElementById("btnBoard");
+  var btnListClose = document.getElementById("btnListClose");
   var card = document.getElementById("card");
+  var listModal = document.getElementById("listModal");
+  var listBody = document.getElementById("listBody");
 
   var intervalSelect = document.getElementById("intervalSelect");
   var knownSizeSelect = document.getElementById("knownSizeSelect");
@@ -50,6 +54,7 @@
   var learningSize = DEFAULT_LEARNING_SIZE;
   var theme = "dark";
   var csvName = "";
+  var isListOpen = false;
 
   var LONG_TAP_MS = 1000;
 
@@ -107,7 +112,7 @@
       elCsvName.textContent = "CSV: Saved words";
       return;
     }
-    elCsvName.textContent = "CSV:";
+    elCsvName.textContent = "CSV: —";
   }
 
   function setMeta() {
@@ -181,6 +186,7 @@
     btnPrev.disabled = !hasWords;
     btnNext.disabled = !hasWords;
     btnShuffle.disabled = !hasWords;
+    if (btnList) btnList.disabled = !hasWords;
     btnSwap.disabled = !hasWords;
     btnReset.disabled = !hasWords;
 
@@ -249,6 +255,59 @@
     setMeta();
     save();
     updateUiState();
+    if (isListOpen) renderWordsList();
+  }
+
+  function renderWordsList() {
+    if (!listBody) return;
+    listBody.innerHTML = "";
+
+    if (!words.length) {
+      var emptyEl = document.createElement("div");
+      emptyEl.className = "list-empty";
+      emptyEl.textContent = "No words loaded";
+      listBody.appendChild(emptyEl);
+      return;
+    }
+
+    for (var i = 0; i < words.length; i++) {
+      var row = document.createElement("div");
+      row.className = "list-item" + (i === index ? " active" : "");
+
+      var cellIndex = document.createElement("div");
+      cellIndex.className = "list-item-index";
+      cellIndex.textContent = String(i + 1) + ".";
+
+      var cellKnown = document.createElement("div");
+      cellKnown.className = "list-item-known";
+      cellKnown.textContent = words[i].el || "—";
+
+      var cellLearning = document.createElement("div");
+      cellLearning.className = "list-item-learning";
+      cellLearning.textContent = words[i].ru || "";
+
+      row.appendChild(cellIndex);
+      row.appendChild(cellKnown);
+      row.appendChild(cellLearning);
+      listBody.appendChild(row);
+    }
+  }
+
+  function openWordsList() {
+    if (!words.length || !listModal) return;
+    isListOpen = true;
+    renderWordsList();
+    listModal.classList.add("is-open");
+    listModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeWordsList() {
+    if (!listModal) return;
+    isListOpen = false;
+    listModal.classList.remove("is-open");
+    listModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
   }
 
   function setBoardMode(on) {
@@ -418,6 +477,12 @@
     render();
   });
 
+  if (btnList) {
+    btnList.addEventListener("click", function () {
+      openWordsList();
+    });
+  }
+
   btnSwap.addEventListener("click", function () {
     if (!words.length) return;
     stop();
@@ -442,6 +507,7 @@
     localStorage.removeItem(K_INDEX);
     localStorage.removeItem(K_CSV_NAME);
     fileInput.value = "";
+    closeWordsList();
     render();
   });
 
@@ -459,6 +525,22 @@
   btnBoard.addEventListener("click", function () {
     var on = !document.body.classList.contains("board-mode");
     setBoardMode(on);
+  });
+
+  if (btnListClose) {
+    btnListClose.addEventListener("click", function () {
+      closeWordsList();
+    });
+  }
+
+  if (listModal) {
+    listModal.addEventListener("click", function (e) {
+      if (e.target === listModal) closeWordsList();
+    });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" || e.keyCode === 27) closeWordsList();
   });
 
   // Tap in board mode:

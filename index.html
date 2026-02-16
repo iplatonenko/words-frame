@@ -39,7 +39,7 @@
             Upload CSV
           </label>
           <button class="btn" id="btnReset">Clear CSV</button>
-
+          <button class="btn" id="btnList">Show List</button>
           <button class="btn" id="btnStart">Start</button>
           <button class="btn" id="btnPause">Pause</button>
           <button class="btn" id="btnPrev">◀</button>
@@ -99,6 +99,21 @@
         </div>
       </footer>
     </main>
+
+    <div class="list-modal-backdrop" id="listModal" aria-hidden="true">
+      <div
+        class="list-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="listTitle"
+      >
+        <div class="list-modal-header">
+          <div class="list-modal-title" id="listTitle">Words List</div>
+          <button class="btn" id="btnListClose">Close</button>
+        </div>
+        <div class="list-modal-body" id="listBody"></div>
+      </div>
+    </div>
 
     <script src="./app.js"></script>
   </body>

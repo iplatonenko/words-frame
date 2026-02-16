@@ -10,10 +10,12 @@ Live app: https://iplatonenko.github.io/words-frame/
 - Infinite loop with configurable interval
 - Start / Pause / Prev / Next
 - Shuffle list
+- Show List (scrollable modal with all rows)
 - Swap Sides (swap shown words between top/bottom lines)
 - Theme toggle (Dark / Light)
 - Board Mode (hide controls, left tap = prev, right tap = next, long tap to exit)
 - Manual font size controls for top and bottom lines
+- Active CSV file name is shown in controls
 - Local persistence via `localStorage`
 - Works offline after first load (Service Worker)
 
@@ -43,6 +45,7 @@ Details:
 - `Start` / `Pause`
 - `◀` / `▶`
 - `Shuffle`
+- `Show List` (open full list modal)
 - `Swap Sides`
 - `Theme` (Dark / Light)
 - `Interval`
@@ -59,6 +62,7 @@ Details:
 - `wf_theme_v1` - theme flag (`dark`/`light`)
 - `wf_size_known_v1` - top line size setting
 - `wf_size_learning_v1` - bottom line size setting
+- `wf_csv_name_v1` - active CSV file name
 
 ## PWA / Offline
 
