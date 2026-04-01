@@ -11,6 +11,7 @@ Live app: https://iplatonenko.github.io/words-frame/
 - Start / Pause / Prev / Next
 - Shuffle list
 - Show List (scrollable modal with all rows)
+- Simple training mode with multiple-choice answers and final mistakes list
 - Swap Sides (swap shown words between top/bottom lines)
 - Theme toggle (Dark / Light)
 - Board Mode (hide controls, left tap = prev, right tap = next, long tap to exit)
@@ -46,6 +47,7 @@ Details:
 - `◀` / `▶`
 - `Shuffle`
 - `Show List` (open full list modal)
+- `Train` - quiz through all words once and show final results
 - `Swap Sides`
 - `Theme` (Dark / Light)
 - `Interval`

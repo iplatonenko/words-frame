@@ -5,6 +5,14 @@
   var elCsvName = document.getElementById("csvName");
   var elMeta = document.getElementById("meta");
   var elStatus = document.getElementById("status");
+  var displayView = document.getElementById("displayView");
+  var trainView = document.getElementById("trainView");
+  var trainProgress = document.getElementById("trainProgress");
+  var trainPrompt = document.getElementById("trainPrompt");
+  var trainOptions = document.getElementById("trainOptions");
+  var trainSummary = document.getElementById("trainSummary");
+  var trainMistakes = document.getElementById("trainMistakes");
+  var trainActions = document.getElementById("trainActions");
 
   var fileInput = document.getElementById("fileInput");
 
@@ -14,11 +22,14 @@
   var btnNext = document.getElementById("btnNext");
   var btnShuffle = document.getElementById("btnShuffle");
   var btnList = document.getElementById("btnList");
+  var btnTrain = document.getElementById("btnTrain");
   var btnSwap = document.getElementById("btnSwap");
   var btnTheme = document.getElementById("btnTheme");
   var btnReset = document.getElementById("btnReset");
   var btnBoard = document.getElementById("btnBoard");
   var btnListClose = document.getElementById("btnListClose");
+  var btnTrainRestart = document.getElementById("btnTrainRestart");
+  var btnTrainClose = document.getElementById("btnTrainClose");
   var card = document.getElementById("card");
   var listModal = document.getElementById("listModal");
   var listBody = document.getElementById("listBody");
@@ -55,6 +66,7 @@
   var theme = "dark";
   var csvName = "";
   var isListOpen = false;
+  var trainSession = null;
 
   var LONG_TAP_MS = 1000;
 
@@ -129,6 +141,28 @@
     else btn.classList.remove("is-active");
   }
 
+  function toDisplayText(value) {
+    value = String(value || "");
+    return value ? value : "—";
+  }
+
+  function getPromptText(item) {
+    if (!item) return "";
+    return isSwapped ? String(item.ru || "") : String(item.el || "");
+  }
+
+  function getAnswerText(item) {
+    if (!item) return "";
+    return isSwapped ? String(item.el || "") : String(item.ru || "");
+  }
+
+  function setCardMode(isTraining) {
+    if (displayView) displayView.style.display = isTraining ? "none" : "block";
+    if (!trainView) return;
+    if (isTraining) trainView.className = "train-view is-open";
+    else trainView.className = "train-view";
+  }
+
   function applyTheme(nextTheme) {
     theme = nextTheme === "light" ? "light" : "dark";
     if (theme === "light") document.body.classList.add("light-theme");
@@ -179,26 +213,53 @@
   function updateUiState() {
     var hasWords = words.length > 0;
     var isBoard = document.body.classList.contains("board-mode");
+    var isTraining = !!trainSession;
     var statusParts = [];
 
-    btnStart.disabled = !hasWords || isRunning;
-    btnPause.disabled = !hasWords || !isRunning;
-    btnPrev.disabled = !hasWords;
-    btnNext.disabled = !hasWords;
-    btnShuffle.disabled = !hasWords;
-    if (btnList) btnList.disabled = !hasWords;
-    btnSwap.disabled = !hasWords;
+    btnStart.disabled = !hasWords || isRunning || isTraining;
+    btnPause.disabled = !hasWords || !isRunning || isTraining;
+    btnPrev.disabled = !hasWords || isTraining;
+    btnNext.disabled = !hasWords || isTraining;
+    btnShuffle.disabled = !hasWords || isTraining;
+    if (btnList) btnList.disabled = !hasWords || isTraining;
+    if (btnTrain) btnTrain.disabled = !hasWords && !isTraining;
+    btnSwap.disabled = !hasWords || isTraining;
     btnReset.disabled = !hasWords;
+    btnBoard.disabled = !hasWords || isTraining;
+    intervalSelect.disabled = !hasWords || isTraining;
+    knownSizeSelect.disabled = isTraining;
+    learningSizeSelect.disabled = isTraining;
 
-    setButtonActive(btnStart, hasWords && isRunning);
-    setButtonActive(btnPause, hasWords && !isRunning);
-    setButtonActive(btnBoard, isBoard);
+    setButtonActive(btnStart, hasWords && isRunning && !isTraining);
+    setButtonActive(btnPause, hasWords && !isRunning && !isTraining);
+    setButtonActive(btnBoard, isBoard && !isTraining);
     setButtonActive(btnShuffle, shuffledRecently);
+    if (btnTrain) {
+      btnTrain.textContent = isTraining ? "Exit Train" : "Train";
+      setButtonActive(btnTrain, isTraining);
+    }
     setButtonActive(btnSwap, hasWords && isSwapped);
     setButtonActive(btnTheme, theme === "light");
 
     if (!hasWords) {
       elStatus.textContent = "No data loaded";
+      return;
+    }
+
+    if (isTraining) {
+      if (trainSession.finished) {
+        elStatus.textContent =
+          "Training complete | " +
+          trainSession.correctCount +
+          " / " +
+          trainSession.items.length;
+      } else {
+        elStatus.textContent =
+          "Training | " +
+          (trainSession.index + 1) +
+          " / " +
+          trainSession.items.length;
+      }
       return;
     }
 
@@ -221,6 +282,25 @@
   function render() {
     applyTextSizes();
 
+    if (trainSession) {
+      setCardMode(true);
+      renderTraining();
+      setCsvName();
+      if (trainSession.finished) {
+        elMeta.textContent = "Result";
+      } else {
+        elMeta.textContent =
+          "Train " +
+          (trainSession.index + 1) +
+          " / " +
+          trainSession.items.length;
+      }
+      updateUiState();
+      return;
+    }
+
+    setCardMode(false);
+
     if (!words.length) {
       elWord.textContent = "Upload CSV";
       elTranslation.textContent = "Known + Learning";
@@ -234,20 +314,8 @@
     if (index >= words.length) index = 0;
 
     var item = words[index];
-
-    // Show known language on top and learning language below.
-    var source = item.el || "";
-    var target = item.ru || "";
-    var top = source;
-    var bottom = target;
-
-    if (isSwapped) {
-      top = target;
-      bottom = source;
-    } else {
-      top = source;
-      bottom = target;
-    }
+    var top = getPromptText(item);
+    var bottom = getAnswerText(item);
 
     elWord.textContent = top || "—";
     elTranslation.textContent = bottom ? bottom : " ";
@@ -256,6 +324,173 @@
     save();
     updateUiState();
     if (isListOpen) renderWordsList();
+  }
+
+  function buildTrainingItems() {
+    var items = [];
+    for (var i = 0; i < words.length; i++) {
+      items.push({
+        prompt: toDisplayText(getPromptText(words[i])),
+        correct: toDisplayText(getAnswerText(words[i])),
+      });
+    }
+    return items;
+  }
+
+  function buildTrainingOptions(itemIndex) {
+    var options = [];
+    var wrongPool = [];
+    var current = trainSession.items[itemIndex];
+
+    options.push(current.correct);
+
+    for (var i = 0; i < trainSession.items.length; i++) {
+      if (i === itemIndex) continue;
+      var candidate = trainSession.items[i].correct;
+      if (!candidate || candidate === current.correct) continue;
+      if (wrongPool.indexOf(candidate) === -1) wrongPool.push(candidate);
+    }
+
+    shuffleArray(wrongPool);
+    for (var j = 0; j < wrongPool.length && options.length < 4; j++) {
+      options.push(wrongPool[j]);
+    }
+
+    shuffleArray(options);
+    return options;
+  }
+
+  function renderTrainingQuestion() {
+    var current = trainSession.items[trainSession.index];
+    var options = buildTrainingOptions(trainSession.index);
+
+    trainProgress.textContent =
+      "Word " + (trainSession.index + 1) + " / " + trainSession.items.length;
+    trainPrompt.textContent = current.prompt;
+    trainOptions.innerHTML = "";
+
+    for (var i = 0; i < options.length; i++) {
+      var optionText = options[i];
+      var optionBtn = document.createElement("button");
+      optionBtn.className = "train-option";
+      optionBtn.textContent = String(i + 1) + ". " + optionText;
+      (function (selected) {
+        optionBtn.addEventListener("click", function () {
+          answerTraining(selected);
+        });
+      })(optionText);
+      trainOptions.appendChild(optionBtn);
+    }
+
+    trainSummary.className = "train-summary";
+    trainSummary.innerHTML = "";
+    trainMistakes.className = "train-mistakes";
+    trainMistakes.innerHTML = "";
+    trainActions.className = "train-actions";
+  }
+
+  function renderTrainingResults() {
+    var total = trainSession.items.length;
+    var mistakes = trainSession.mistakes;
+
+    trainProgress.textContent = "Training complete";
+    trainPrompt.textContent = "Results";
+    trainOptions.innerHTML = "";
+
+    trainSummary.className = "train-summary is-open";
+    trainSummary.innerHTML = "";
+
+    var scoreEl = document.createElement("div");
+    scoreEl.className = "train-score";
+    scoreEl.textContent = trainSession.correctCount + " / " + total + " correct";
+
+    var subtitleEl = document.createElement("div");
+    subtitleEl.className = "train-subtitle";
+    subtitleEl.textContent = mistakes.length
+      ? "Mistakes: " + mistakes.length
+      : "No mistakes.";
+
+    trainSummary.appendChild(scoreEl);
+    trainSummary.appendChild(subtitleEl);
+
+    trainMistakes.className = "train-mistakes is-open";
+    trainMistakes.innerHTML = "";
+
+    if (!mistakes.length) {
+      var emptyEl = document.createElement("div");
+      emptyEl.className = "train-empty";
+      emptyEl.textContent = "All words answered correctly.";
+      trainMistakes.appendChild(emptyEl);
+    } else {
+      for (var i = 0; i < mistakes.length; i++) {
+        var row = document.createElement("div");
+        row.className = "train-mistake-item";
+
+        var promptEl = document.createElement("div");
+        promptEl.className = "train-mistake-word";
+        promptEl.textContent = mistakes[i].prompt;
+
+        var answerEl = document.createElement("div");
+        answerEl.className = "train-mistake-answer";
+        answerEl.textContent = "Correct: " + mistakes[i].correct;
+
+        row.appendChild(promptEl);
+        row.appendChild(answerEl);
+        trainMistakes.appendChild(row);
+      }
+    }
+
+    trainActions.className = "train-actions is-open";
+  }
+
+  function renderTraining() {
+    if (!trainSession) return;
+    if (trainSession.finished) {
+      renderTrainingResults();
+      return;
+    }
+    renderTrainingQuestion();
+  }
+
+  function openTraining() {
+    if (!words.length) return;
+    stop();
+    closeWordsList();
+    if (document.body.classList.contains("board-mode")) setBoardMode(false);
+    trainSession = {
+      items: buildTrainingItems(),
+      index: 0,
+      correctCount: 0,
+      mistakes: [],
+      finished: false,
+    };
+    render();
+  }
+
+  function closeTraining() {
+    if (!trainSession) return;
+    trainSession = null;
+    render();
+  }
+
+  function answerTraining(selected) {
+    if (!trainSession || trainSession.finished) return;
+
+    var current = trainSession.items[trainSession.index];
+    if (selected === current.correct) {
+      trainSession.correctCount += 1;
+    } else {
+      trainSession.mistakes.push({
+        prompt: current.prompt,
+        correct: current.correct,
+      });
+    }
+
+    trainSession.index += 1;
+    if (trainSession.index >= trainSession.items.length) {
+      trainSession.finished = true;
+    }
+    render();
   }
 
   function renderWordsList() {
@@ -345,7 +580,7 @@
   }
 
   function start() {
-    if (!words.length) return;
+    if (!words.length || trainSession) return;
     stop();
     isRunning = true;
 
@@ -438,6 +673,7 @@
   fileInput.addEventListener("change", function (e) {
     var file = e.target.files && e.target.files[0];
     if (!file) return;
+    if (trainSession) closeTraining();
 
     var reader = new FileReader();
     reader.onload = function () {
@@ -483,6 +719,16 @@
     });
   }
 
+  if (btnTrain) {
+    btnTrain.addEventListener("click", function () {
+      if (trainSession) {
+        closeTraining();
+        return;
+      }
+      openTraining();
+    });
+  }
+
   btnSwap.addEventListener("click", function () {
     if (!words.length) return;
     stop();
@@ -499,6 +745,7 @@
 
   btnReset.addEventListener("click", function () {
     stop();
+    trainSession = null;
     words = [];
     csvName = "";
     index = 0;
@@ -533,6 +780,18 @@
     });
   }
 
+  if (btnTrainRestart) {
+    btnTrainRestart.addEventListener("click", function () {
+      openTraining();
+    });
+  }
+
+  if (btnTrainClose) {
+    btnTrainClose.addEventListener("click", function () {
+      closeTraining();
+    });
+  }
+
   if (listModal) {
     listModal.addEventListener("click", function (e) {
       if (e.target === listModal) closeWordsList();
@@ -540,7 +799,13 @@
   }
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" || e.keyCode === 27) closeWordsList();
+    if (e.key === "Escape" || e.keyCode === 27) {
+      if (isListOpen) {
+        closeWordsList();
+        return;
+      }
+      if (trainSession) closeTraining();
+    }
   });
 
   // Tap in board mode:

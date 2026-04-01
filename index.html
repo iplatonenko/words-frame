@@ -24,8 +24,22 @@
   <body>
     <main class="screen" id="screen">
       <div class="card" id="card">
-        <div class="word" id="word">Upload CSV</div>
-        <div class="translation" id="translation">Known + Learning</div>
+        <div class="display-view" id="displayView">
+          <div class="word" id="word">Upload CSV</div>
+          <div class="translation" id="translation">Known + Learning</div>
+        </div>
+
+        <div class="train-view" id="trainView">
+          <div class="train-progress" id="trainProgress"></div>
+          <div class="train-prompt" id="trainPrompt"></div>
+          <div class="train-options" id="trainOptions"></div>
+          <div class="train-summary" id="trainSummary"></div>
+          <div class="train-mistakes" id="trainMistakes"></div>
+          <div class="train-actions" id="trainActions">
+            <button class="btn" id="btnTrainRestart">Train Again</button>
+            <button class="btn" id="btnTrainClose">Close</button>
+          </div>
+        </div>
       </div>
 
       <footer class="controls" id="controls">
@@ -40,6 +54,7 @@
           </label>
           <button class="btn" id="btnReset">Clear CSV</button>
           <button class="btn" id="btnList">Show List</button>
+          <button class="btn" id="btnTrain">Train</button>
           <button class="btn" id="btnStart">Start</button>
           <button class="btn" id="btnPause">Pause</button>
           <button class="btn" id="btnPrev">◀</button>

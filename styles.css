@@ -54,6 +54,10 @@ body.modal-open {
   text-align: center;
 }
 
+.display-view {
+  width: 100%;
+}
+
 .word {
   font-size: 120px;
   line-height: 1.1;
@@ -243,6 +247,131 @@ select {
   font-size: 14px;
 }
 
+.train-view {
+  display: none;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.train-view.is-open {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.train-progress {
+  font-size: 14px;
+  color: var(--muted2);
+}
+
+.train-prompt {
+  font-size: 48px;
+  line-height: 1.15;
+  font-weight: 300;
+  word-break: break-word;
+}
+
+.train-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.train-option {
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--fg);
+  padding: 14px 16px;
+  font-size: 20px;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.train-option:active {
+  transform: translateY(1px);
+}
+
+.train-summary {
+  display: none;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.train-summary.is-open {
+  display: block;
+}
+
+.train-score {
+  font-size: 32px;
+  line-height: 1.15;
+  font-weight: 300;
+}
+
+.train-subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.train-mistakes {
+  display: none;
+  max-height: 36vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.train-mistakes.is-open {
+  display: block;
+}
+
+.train-mistake-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.train-mistake-item:last-child {
+  border-bottom: 0;
+}
+
+.train-mistake-word {
+  font-size: 18px;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.train-mistake-answer {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.train-empty {
+  padding: 16px 12px;
+  color: var(--muted2);
+  font-size: 14px;
+}
+
+.train-actions {
+  display: none;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.train-actions.is-open {
+  display: flex;
+}
+
 /* Board mode: hide controls panel */
 .board-mode .controls {
   display: none;
@@ -254,4 +383,18 @@ select {
 }
 .board-mode .translation {
   font-size: 28px;
+}
+
+@media (max-width: 720px) {
+  .train-prompt {
+    font-size: 34px;
+  }
+
+  .train-option {
+    font-size: 18px;
+  }
+
+  .train-score {
+    font-size: 28px;
+  }
 }
