@@ -24,6 +24,7 @@
   var btnList = document.getElementById("btnList");
   var btnTrain = document.getElementById("btnTrain");
   var btnSwap = document.getElementById("btnSwap");
+  var btnTrainSwap = document.getElementById("btnTrainSwap");
   var btnTheme = document.getElementById("btnTheme");
   var btnReset = document.getElementById("btnReset");
   var btnBoard = document.getElementById("btnBoard");
@@ -44,6 +45,7 @@
   var K_INTERVAL = "wf_interval_v1";
   var K_BOARD = "wf_board_v1";
   var K_SWAP = "wf_swap_v1";
+  var K_TRAIN_SWAP = "wf_train_swap_v1";
   var K_THEME = "wf_theme_v1";
   var K_SIZE_KNOWN = "wf_size_known_v1";
   var K_SIZE_LEARNING = "wf_size_learning_v1";
@@ -59,6 +61,7 @@
   var longTapTimer = null;
   var longTapTriggered = false;
   var isSwapped = false;
+  var isTrainSwapped = false;
   var shuffledRecently = false;
   var shuffledTimer = null;
   var knownSize = DEFAULT_KNOWN_SIZE;
@@ -95,6 +98,9 @@
 
     var swap = localStorage.getItem(K_SWAP);
     isSwapped = swap === "1";
+
+    var trainSwap = localStorage.getItem(K_TRAIN_SWAP);
+    isTrainSwapped = trainSwap === "1";
 
     var storedTheme = localStorage.getItem(K_THEME);
     if (storedTheme === "light" || storedTheme === "dark") theme = storedTheme;
@@ -154,6 +160,16 @@
   function getAnswerText(item) {
     if (!item) return "";
     return isSwapped ? String(item.el || "") : String(item.ru || "");
+  }
+
+  function getTrainPromptText(item) {
+    if (!item) return "";
+    return isTrainSwapped ? String(item.ru || "") : String(item.el || "");
+  }
+
+  function getTrainAnswerText(item) {
+    if (!item) return "";
+    return isTrainSwapped ? String(item.el || "") : String(item.ru || "");
   }
 
   function setCardMode(isTraining) {
@@ -224,21 +240,23 @@
     if (btnList) btnList.disabled = !hasWords || isTraining;
     if (btnTrain) btnTrain.disabled = !hasWords && !isTraining;
     btnSwap.disabled = !hasWords || isTraining;
+    if (btnTrainSwap) btnTrainSwap.disabled = !hasWords;
     btnReset.disabled = !hasWords;
-    btnBoard.disabled = !hasWords || isTraining;
+    btnBoard.disabled = !hasWords;
     intervalSelect.disabled = !hasWords || isTraining;
     knownSizeSelect.disabled = isTraining;
     learningSizeSelect.disabled = isTraining;
 
     setButtonActive(btnStart, hasWords && isRunning && !isTraining);
     setButtonActive(btnPause, hasWords && !isRunning && !isTraining);
-    setButtonActive(btnBoard, isBoard && !isTraining);
+    setButtonActive(btnBoard, isBoard);
     setButtonActive(btnShuffle, shuffledRecently);
     if (btnTrain) {
       btnTrain.textContent = isTraining ? "Exit Train" : "Train";
       setButtonActive(btnTrain, isTraining);
     }
     setButtonActive(btnSwap, hasWords && isSwapped);
+    setButtonActive(btnTrainSwap, hasWords && isTrainSwapped);
     setButtonActive(btnTheme, theme === "light");
 
     if (!hasWords) {
@@ -330,8 +348,8 @@
     var items = [];
     for (var i = 0; i < words.length; i++) {
       items.push({
-        prompt: toDisplayText(getPromptText(words[i])),
-        correct: toDisplayText(getAnswerText(words[i])),
+        prompt: toDisplayText(getTrainPromptText(words[i])),
+        correct: toDisplayText(getTrainAnswerText(words[i])),
       });
     }
     return items;
@@ -456,7 +474,6 @@
     if (!words.length) return;
     stop();
     closeWordsList();
-    if (document.body.classList.contains("board-mode")) setBoardMode(false);
     trainSession = {
       items: buildTrainingItems(),
       index: 0,
@@ -737,6 +754,19 @@
     render();
   });
 
+  if (btnTrainSwap) {
+    btnTrainSwap.addEventListener("click", function () {
+      if (!words.length) return;
+      isTrainSwapped = !isTrainSwapped;
+      localStorage.setItem(K_TRAIN_SWAP, isTrainSwapped ? "1" : "0");
+      if (trainSession) {
+        openTraining();
+        return;
+      }
+      updateUiState();
+    });
+  }
+
   btnTheme.addEventListener("click", function () {
     applyTheme(theme === "light" ? "dark" : "light");
     localStorage.setItem(K_THEME, theme);
@@ -812,6 +842,7 @@
   // left half = previous card, right half = next card
   card.addEventListener("click", function (e) {
     if (!document.body.classList.contains("board-mode")) return;
+    if (trainSession) return;
     if (longTapTriggered) {
       longTapTriggered = false;
       return;

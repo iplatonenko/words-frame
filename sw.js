@@ -1,4 +1,4 @@
-var CACHE = "words-frame-v2";
+var CACHE = "words-frame-v4";
 var ASSETS = [
   "./",
   "./index.html",
